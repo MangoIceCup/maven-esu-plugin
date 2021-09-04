@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ESUUploader implements AutoCloseable {
-    private Path targetDir;
+    private Path projectTargetDir;
     private String hostName;
     private Integer port;
     private String endpoint;
@@ -29,45 +29,27 @@ public class ESUUploader implements AutoCloseable {
     private Path surefireReportsRoot;
     private Log log;
 
-
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-    public ESUUploader(Path targetDir, String hostName, Integer port, String endpoint, Log log) {
 
-        Objects.requireNonNull(targetDir);
+    public ESUUploader(Path projectTargetDir, String hostName, Integer port, String endpoint, Log log) {
+
+        Objects.requireNonNull(projectTargetDir);
         Objects.requireNonNull(hostName);
         Objects.requireNonNull(port);
         Objects.requireNonNull(endpoint);
         Objects.requireNonNull(log);
 
-        this.targetDir = targetDir;
+        this.projectTargetDir = projectTargetDir;
         this.hostName = hostName;
         this.port = port;
         this.endpoint = endpoint;
         this.log = log;
 
-        surefireReportsRoot = Paths.get(this.targetDir.toAbsolutePath().normalize().toString(), "surefire-reports");
+        surefireReportsRoot = Paths.get(this.projectTargetDir.toAbsolutePath().normalize().toString(), "surefire-reports");
 
         setupRestClient();
     }
-
-    private static Stream<? extends Path> traverseFiles(Path p) {
-        if (Files.isDirectory(p)) {
-            try {
-                return Files.list(p).flatMap(ESUUploader::traverseFiles);
-            } catch (IOException e) {
-                return Stream.empty();
-            }
-        } else {
-            return Stream.of(p);
-        }
-    }
-
-    private void setupRestClient()
-    {
-        restClient = RestClient.builder(new HttpHost(hostName, port, "http")).build();
-    }
-
 
     public void uploadTestCaseResult() {
         try {
@@ -83,6 +65,17 @@ public class ESUUploader implements AutoCloseable {
                     .forEach(this::sendRequest);
         } catch (IOException e) {
             log.warn("list test result of surefire fail.", e);
+        }
+    }
+
+    public Path getProjectTargetDir() {
+        return projectTargetDir;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (this.restClient != null) {
+            this.restClient.close();
         }
     }
 
@@ -112,10 +105,6 @@ public class ESUUploader implements AutoCloseable {
         } catch (IOException e) {
             log.warn("send test result to elastic server fail.");
         }
-    }
-
-    public Path getTargetDir() {
-        return targetDir;
     }
 
     private Request makePostRequest(String jsonText) {
@@ -180,11 +169,20 @@ public class ESUUploader implements AutoCloseable {
         return name;
     }
 
-
-    @Override
-    public void close() throws Exception {
-        if (this.restClient != null) {
-            this.restClient.close();
+    private static Stream<? extends Path> traverseFiles(Path p) {
+        if (Files.isDirectory(p)) {
+            try {
+                return Files.list(p).flatMap(ESUUploader::traverseFiles);
+            } catch (IOException e) {
+                return Stream.empty();
+            }
+        } else {
+            return Stream.of(p);
         }
     }
+
+    private void setupRestClient() {
+        restClient = RestClient.builder(new HttpHost(hostName, port, "http")).build();
+    }
+
 }
