@@ -47,7 +47,6 @@ public class ESUUploader implements AutoCloseable {
         sendRequest(stream.map(Projects::toBulkRequestBody).map(content -> {
             final Request request = new Request("POST", endpoint + "/_bulk");
             request.setJsonEntity(content);
-            log.info(content);
             return request;
         }));
     }
