@@ -27,8 +27,8 @@ public class GitTools {
             } finally {
                 repository.close();
             }
-        } catch (IOException e) {
-            return null;
+        } catch (Throwable e) {
+            return "";
         }
     }
 }
