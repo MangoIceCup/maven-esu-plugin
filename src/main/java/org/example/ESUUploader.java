@@ -13,11 +13,11 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ESUUploader implements AutoCloseable {
-    private String hostName;
-    private Integer port;
-    private String endpoint;
+    private final String hostName;
+    private final Integer port;
+    private final String endpoint;
     private RestClient restClient;
-    private Log log;
+    private final Log log;
 
 
     public ESUUploader(String hostName, Integer port, String endpoint, Log log) {

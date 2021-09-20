@@ -31,6 +31,7 @@ public class ESUMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         final Log log = getLog();
+        log.info("Elastic Search Upload Plugin");
         if (mavenProject.isExecutionRoot()) {
             System.out.println("666666666666666666666666666666666666666");
             test();
@@ -38,20 +39,6 @@ public class ESUMojo extends AbstractMojo {
         } else {
             log.info("Current project is not execution root, skip upload test info.");
         }
-        /*if (serverAddress == null || serverAddress.toString().trim().isEmpty()) {
-            log.warn("No elastic search endpoint configured.");
-            return;
-        }
-
-        final String targetDirectory = mavenProject.getBuild().getDirectory();
-        log.info("Elastic Search Upload Plugin");
-        log.info("Server Address: " + serverAddress);
-
-        try (ESUUploader esuUploader = new ESUUploader(Paths.get(targetDirectory), serverAddress.getHost(), serverAddress.getPort(), serverAddress.getPath(), log)) {
-            esuUploader.uploadTestCaseResult();
-        } catch (Exception e) {
-//            log.warn(e);
-        }*/
     }
 
     private void test() {
