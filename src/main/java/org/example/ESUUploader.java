@@ -3,7 +3,6 @@ package org.example;
 import org.apache.http.HttpHost;
 import org.apache.maven.plugin.logging.Log;
 import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.example.entity.TestRoot;
 
@@ -54,25 +53,6 @@ public class ESUUploader implements AutoCloseable {
     }
 
 
-    private void settingMapping(Log log, RestClient restClient) throws IOException {
-        final Request head = new Request("HEAD", endpoint);
-        final Response response = restClient.performRequest(head);
-        if (response.getStatusLine().getStatusCode() == 404) {
-            try {
-                final Request put = new Request("PUT", endpoint);
-                restClient.performRequest(put);
-            } catch (Exception e) {
-                log.error(e);
-            }
-        }
-        try {
-            final Request put = new Request("PUT", endpoint + "/_mapping");
-            put.setJsonEntity("{\"properties\":{\"testsuite.properties.property\":{\"type\":\"nested\",\"properties\":{\"value\":{\"type\":\"text\"}}}}}");
-            restClient.performRequest(put);
-        } catch (Exception e) {
-            log.error(e);
-        }
-    }
 
     private void sendRequest(Stream<Request> stream) {
         stream.forEach(this::sendRequest);
@@ -86,11 +66,6 @@ public class ESUUploader implements AutoCloseable {
         }
     }
 
-    private Request makePostRequest(String jsonText) {
-        final Request post = new Request("POST", endpoint + "/_doc");
-        post.setJsonEntity(jsonText);
-        return post;
-    }
 
     private void setupRestClient() {
         restClient = RestClient.builder(new HttpHost(hostName, port, "http")).build();
