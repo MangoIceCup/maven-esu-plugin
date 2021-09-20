@@ -28,7 +28,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Projects {
-
+    public static List<List<TestRoot>> getPartiedTestSuites(TimeStampIdGenerator timeStampIdGenerator, String lastCommitHash, MavenProject mavenProject, String surefireReports, int bulkSize) {
+        final List<List<TestRoot>> partitions = Projects
+                .stream(mavenProject)
+                .filter(Projects.hasSurefireReportDir(surefireReports))
+                .flatMap(Projects.toRootTests(timeStampIdGenerator, lastCommitHash, surefireReports, mavenProject.getName()))
+                .sequential().collect(new TestRootCollector(bulkSize));
+        return partitions;
+    }
     private static Stream<Path> allFilesUnder(Path path) {
         try {
             final Map<Boolean, List<Path>> childes = Files.list(path).collect(Collectors.partitioningBy(Files::isDirectory));

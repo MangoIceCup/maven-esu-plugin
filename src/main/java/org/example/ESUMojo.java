@@ -33,25 +33,16 @@ public class ESUMojo extends AbstractMojo {
         final Log log = getLog();
         log.info("Elastic Search Upload Plugin");
         if (mavenProject.isExecutionRoot()) {
-            System.out.println("666666666666666666666666666666666666666");
-            test();
-            System.out.println("666666666666666666666666666666666666666");
+            upload();
         } else {
             log.info("Current project is not execution root, skip upload test info.");
         }
     }
 
-    private void test() {
+    private void upload() {
         final TimeStampIdGenerator timeStampIdGenerator = new TimeStampIdGenerator(new Date().getTime());
         final String lastCommitHash = GitTools.getLastCommitHash();
-
-        final List<List<TestRoot>> partitions = Projects
-                .stream(mavenProject)
-                .filter(Projects.hasSurefireReportDir(surefireReports))
-                .flatMap(Projects.toRootTests(timeStampIdGenerator, lastCommitHash, surefireReports, mavenProject.getName()))
-                .sequential().collect(new TestRootCollector(bulkSize));
-
-
+        final List<List<TestRoot>> partitions = Projects.getPartiedTestSuites(timeStampIdGenerator, lastCommitHash, mavenProject, surefireReports, bulkSize);
         try (ESUUploader esuUploader = new ESUUploader(serverAddress.getHost(), serverAddress.getPort(), serverAddress.getPath(), getLog())) {
             esuUploader.bulkUpload(partitions.stream());
         } catch (Exception e) {
