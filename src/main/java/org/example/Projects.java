@@ -80,7 +80,7 @@ public class Projects {
             testSuit.setTestcases(testcases);
 
             final List<Node> nodes = document.selectNodes("//testcase");
-            final List<TestcasesItem> testcasesItems = nodes.stream().map(node -> {
+            final List<TestcasesItem> testcasesItems = nodes.stream().filter(Projects::filterSkipped).map(node -> {
                 final TestcasesItem testcasesItem = new TestcasesItem();
                 testcasesItem.setTestcaseName(extractNode(node, "./@name"));
                 testcasesItem.setClassname(extractNode(node, "./@classname"));
@@ -112,6 +112,10 @@ public class Projects {
         }
     }
 
+    private static boolean filterSkipped(Node node){
+        final Node skipped = node.selectSingleNode("skipped");
+        return skipped == null;
+    }
     private static String extractNode(Node doc, String xpathExpression) {
         String name;
         final Node node = doc.selectSingleNode(xpathExpression);
