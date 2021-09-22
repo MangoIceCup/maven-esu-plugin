@@ -43,7 +43,7 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
             final List<String> goals = session.getGoals();
             boolean shouldUpload = goals.stream().filter(sameNames::contains).findAny().orElseGet(() -> null) != null;
             if (shouldUpload) {
-                log.info("ElasticSearch Upload Plugin");
+                log.info("ElasticSearch Upload Plugin uploading ...");
                 final Object configuration = self.getConfiguration();
                 if (configuration != null) {
                     final String xml = Objects.toString(configuration);
@@ -76,7 +76,6 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
                         log.error("esu need specify elastic server address");
                     }
                 } else {
-                    LogUtils.setEnable(true);
                     final TimeStampIdGenerator timeStampIdGenerator = new TimeStampIdGenerator(new Date().getTime());
                     final String lastCommitHash = GitTools.getLastCommitHash();
                     final List<List<TestRoot>> partitions = Projects.getPartiedTestSuites(timeStampIdGenerator, lastCommitHash, topLevelProject, surefireReports, bulkSize);
