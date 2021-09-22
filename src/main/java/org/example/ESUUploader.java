@@ -1,7 +1,7 @@
 package org.example;
 
+import org.apache.commons.logging.Log;
 import org.apache.http.HttpHost;
-import org.apache.maven.plugin.logging.Log;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
 import org.example.entity.TestRoot;
@@ -47,6 +47,7 @@ public class ESUUploader implements AutoCloseable {
         sendRequest(stream.map(Projects::toBulkRequestBody).map(content -> {
             final Request request = new Request("POST", endpoint + "/_bulk");
             request.setJsonEntity(content);
+            System.out.println(content);
             return request;
         }));
     }

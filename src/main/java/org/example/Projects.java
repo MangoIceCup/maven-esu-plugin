@@ -30,8 +30,11 @@ import java.util.stream.Stream;
 public class Projects {
     public static List<List<TestRoot>> getPartiedTestSuites(TimeStampIdGenerator timeStampIdGenerator, String lastCommitHash, MavenProject mavenProject, String surefireReports, int bulkSize) {
         final List<List<TestRoot>> partitions = Projects
-                .stream(mavenProject)
-                .filter(Projects.hasSurefireReportDir(surefireReports))
+                .stream(mavenProject).map(LogUtils.streamLog("Sub Maven project"))
+                .filter(Projects.hasSurefireReportDir(surefireReports)).map(LogUtils.streamLog("Sub Maven Project with surefire project"))
+                .map(t->{
+                    LogUtils.log(t.getFile().toString());
+                    return t;})
                 .flatMap(Projects.toRootTests(timeStampIdGenerator, lastCommitHash, surefireReports, mavenProject.getName()))
                 .sequential().collect(new TestRootCollector(bulkSize));
         return partitions;
