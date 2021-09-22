@@ -47,11 +47,12 @@ public class ESUUploader implements AutoCloseable {
         sendRequest(stream.map(Projects::toBulkRequestBody).map(content -> {
             final Request request = new Request("POST", endpoint + "/_bulk");
             request.setJsonEntity(content);
-            System.out.println(content);
+            if (LogUtils.isEnable()) {
+                log.info(content);
+            }
             return request;
         }));
     }
-
 
 
     private void sendRequest(Stream<Request> stream) {
@@ -62,7 +63,9 @@ public class ESUUploader implements AutoCloseable {
         try {
             restClient.performRequest(request);
         } catch (IOException e) {
-            log.warn("send test result to elastic server fail.");
+            if (LogUtils.isEnable()) {
+                log.warn("send test result to elastic server fail.");
+            }
         }
     }
 

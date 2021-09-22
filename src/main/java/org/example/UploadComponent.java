@@ -30,6 +30,8 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
         URI serverAddress = null;
         int bulkSize = 3000;
         String surefireReports = "surefire-reports";
+        boolean debugEnable = false;
+
 
         final Plugin self = findSelf(topLevelProject);
         if (self != null) {
@@ -41,6 +43,7 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
             final List<String> goals = session.getGoals();
             boolean shouldUpload = goals.stream().filter(sameNames::contains).findAny().orElseGet(() -> null) != null;
             if (shouldUpload) {
+                log.info("ElasticSearch Upload Plugin");
                 final Object configuration = self.getConfiguration();
                 if (configuration != null) {
                     final String xml = Objects.toString(configuration);
@@ -60,11 +63,18 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
                             surefireReports = document.selectSingleNode("//surefireReports").getStringValue();
                         } catch (Exception ignored) {
                         }
+                        try {
+                            debugEnable = Boolean.getBoolean(document.selectSingleNode("//debugEnable").getStringValue());
+                            LogUtils.setEnable(debugEnable);
+                        } catch (Exception ignored) {
+                        }
                     } catch (DocumentException ignored) {
                     }
                 }
                 if (serverAddress == null) {
-                    log.error("esu need specify elastic server address");
+                    if (LogUtils.isEnable()) {
+                        log.error("esu need specify elastic server address");
+                    }
                 } else {
                     LogUtils.setEnable(true);
                     final TimeStampIdGenerator timeStampIdGenerator = new TimeStampIdGenerator(new Date().getTime());
@@ -74,7 +84,9 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
                     try (ESUUploader esuUploader = new ESUUploader(serverAddress.getHost(), serverAddress.getPort(), serverAddress.getPath(), log)) {
                         esuUploader.bulkUpload(partitions.stream());
                     } catch (Exception e) {
-                        log.warn(e);
+                        if (LogUtils.isEnable()) {
+                            log.warn(e);
+                        }
                     }
                 }
             }

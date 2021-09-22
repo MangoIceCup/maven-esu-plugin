@@ -7,7 +7,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
-import java.io.IOException;
 
 public class GitTools {
     public static String getLastCommitHash() {

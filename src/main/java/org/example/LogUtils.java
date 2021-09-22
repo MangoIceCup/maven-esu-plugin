@@ -3,10 +3,8 @@ package org.example;
 
 import org.apache.commons.logging.Log;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class LogUtils {
     private static Log logger;
@@ -14,6 +12,10 @@ public class LogUtils {
 
     public static void setLogger(Log logger) {
         LogUtils.logger = logger;
+    }
+
+    public static boolean isEnable() {
+        return enable;
     }
 
     public static void setEnable(boolean enable) {
