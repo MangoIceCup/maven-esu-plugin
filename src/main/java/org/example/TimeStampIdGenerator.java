@@ -1,7 +1,5 @@
 package org.example;
 
-import org.elasticsearch.client.Request;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -21,8 +19,11 @@ public class TimeStampIdGenerator {
         synchronized (lock) {
             if (uploadId == null) {
                 final String prefix = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date(timestamp));
-                final int randomNumber = new Random(System.currentTimeMillis()).nextInt() % 100;
-                uploadId = prefix + "_" + String.format("%03d", randomNumber);
+                final Random random = new Random(System.currentTimeMillis());
+                final int n1 = Math.abs(random.nextInt()) % 9 + 1;
+                final int n2 = Math.abs(random.nextInt()) % 9 + 1;
+                final int n3 = Math.abs(random.nextInt()) % 9 + 1;
+                uploadId = prefix + "_" + n1 + n2 + n3;
             }
         }
         return uploadId;

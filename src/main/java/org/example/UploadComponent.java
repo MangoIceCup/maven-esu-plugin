@@ -64,7 +64,8 @@ public class UploadComponent extends AbstractMavenLifecycleParticipant {
                         } catch (Exception ignored) {
                         }
                         try {
-                            debugEnable = Boolean.getBoolean(document.selectSingleNode("//debugEnable").getStringValue());
+                            final String stringValue = document.selectSingleNode("//debugEnable").getStringValue();
+                            debugEnable = Boolean.parseBoolean(stringValue);
                             LogUtils.setEnable(debugEnable);
                         } catch (Exception ignored) {
                         }
